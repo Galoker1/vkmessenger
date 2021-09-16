@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>VKMess</title>
+      <script src="eel.js"></script>
+    <style media="screen">
+      .one{
+        width:200px;
+        height:600px;
+        float:left;
+      }
+      .two{
+        width:200px;
+        height:600px;
+        float:left;
+      }
+      .three{
+        width:200px;
+        height:600px;
+        float:left;
+        overflow-y:scroll;
+      }
+      .four{
+        width:400px;
+        height:600px;
+        float:left;
+        overflow-y:scroll;
+      }
+      .standart_btn{
+        border-radius: 15px;
+        background-color: green;
+        width:80%;
+        float:left;
+        margin-top: 5px;
+        float: left;
+        height:50px;
+        margin-left: 10%;
+        background-color: white;
+        border: 2px solid #A7F6C4;
+        text-align: center;
+        font-family: Arial;
+        color: #266C40;
+
+
+      }
+      #pol{
+        width:80%;
+        height:20px;
+      }
+    </style>
+  </head>
+  <body>
+
+      <div class="one">
+        <button class="standart_btn" type="button" name="button" id="getacc" onclick="getacc()">Чат</button>
+        <button class="standart_btn" type="button" name="button" id="getacc" onclick="getaccnm()">Новое сообщение</button>
+        <button class="standart_btn" type="button" name="button">Проверка БД  </button>
+        <button class="standart_btn" type="button" name="button">Настройки</button>
+      </div>
+      <div class="two" id="two">
+
+      </div>
+      <div id="three" class="three">
+
+      </div>
+      <div class="four" id="four">
+      </div>
+
+
+
+
+      <script>
+    async function getacc() {
+          document.getElementById("two").innerHTML=""
+          document.getElementById("three").innerHTML=""
+          document.getElementById("four").innerHTML=""
+          let users=await eel.get_all_accounts()();
+          for (let i=0;i<users.length;i+=1){
+            document.getElementById("two").innerHTML+="<button class='standart_btn' onclick='getchat("+i+")' type='button'>"+users[i]+"</button>";
+              }
+          }
+
+          async function getaccnm() {
+            document.getElementById("three").innerHTML="";
+            document.getElementById("four").innerHTML="";
+                document.getElementById("two").innerHTML="";
+                let users=await eel.get_all_accounts()();
+                for (let i=0;i<users.length;i+=1){
+                  document.getElementById("two").innerHTML+="<button class='standart_btn' onclick='getchatnm("+i+")' type='button'>"+users[i]+"</button>";
+                    }
+                }
+
+            async function getchatnm(n) {
+                  document.getElementById("three").innerHTML=""
+                  document.getElementById("four").innerHTML=""
+                  document.getElementById("four").innerHTML+="<input type='text' id='ids' value=''><button id='btn' onclick='getname("+n+")'>OK</button><br><p id='ident'></p><br><textarea name='' id='pol' value=''> </textarea><button id='but' onclick='sendmessnm("+n+")'>OK</button>";
+                      }
+
+
+
+    async function getchat(n) {
+      document.getElementById("three").innerHTML=""
+      document.getElementById("four").innerHTML=""
+      let chats=await eel.chat(n)();
+      for (let i=0;i<chats.length;i+=1){
+        let id = chats[i][1];
+        document.getElementById("three").innerHTML+="<button class='standart_btn' onclick='getmessages("+n+","+id+")' type='button'>"+chats[i][0]+"<br>"+chats[i][3]+"</button>";
+          }
+
+}
+async function getmessages(n,id) {
+
+  document.getElementById("four").innerHTML=""
+  let messages=await eel.get_messages(n,id)();
+  for (let i=messages.length-1;i>-1;i-=1){
+      if (messages[i][0]==id){
+          document.getElementById("four").innerHTML+="<p style='background-color:#FFD0FD'>"+messages[i][1]+"</p>"
+      }
+      else{
+        document.getElementById("four").innerHTML+="<p style='background-color:#BBFCD3'>"+messages[i][1]+"</p>"
+      }
+      }
+      document.getElementById("four").innerHTML+="<textarea name='' id='pol' value=''> </textarea> <button id='but' onclick='sendmess("+n+","+id+")'>OK</button>"
+
+}
+async function sendmess(n,id) {
+
+  let text= document.getElementById("pol").value;
+  let send=await eel.send_message(n,text,id)();
+  getmessages(n,id);
+}
+async function sendmessnm(n) {
+  let id= document.getElementById("ids").value;
+  let text= document.getElementById("pol").value;
+  let send=await eel.send_message(n,text,id)();
+  getchatnm(n);
+}
+
+async function getname(n) {
+
+  let id= document.getElementById("ids").value;
+  let name=await eel.get_namenm(n,id)();
+  document.getElementById("ident").innerHTML=name;
+
+}
+</script>
+</html>
